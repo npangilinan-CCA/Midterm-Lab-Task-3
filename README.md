@@ -1,4 +1,4 @@
-# Midterm Lab Task 3 - Creating PIVOT TABLE and DASHBOARD
+# [Midterm Lab Task 3 - Creating PIVOT TABLE and DASHBOARD](https://github.com/user-attachments/files/19259546/Midterm.Lab.Task.3.Neil.xlsx)
 - This portfolio demonstrates how to create an interactive Excel dashboard that tracks Data Science salary trends and job patterns. It looks at job distribution, salary changes by role and company size, and sector-based employment trends using pivot tables, charts, slicers, and an optional map.
   
 ## Step by Step Process
