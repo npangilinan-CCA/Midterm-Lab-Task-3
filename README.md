@@ -73,3 +73,6 @@
 
 ### Map
 ![Image](https://github.com/user-attachments/assets/7da4cd47-77ed-41a3-af16-a225860c8636)
+
+### Search Bar
+![Image](https://github.com/user-attachments/assets/3d84619d-7630-49e5-a87a-4be76cecaa4f)
