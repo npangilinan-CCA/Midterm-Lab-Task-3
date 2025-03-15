@@ -38,18 +38,38 @@
 ## Screenshots During Analysis
 - Sal by Role Type
 
+  ![Image](https://github.com/user-attachments/assets/42b75e6e-60f0-49be-b59d-25c41fc8b135)
+
 
 - Sal by Size
+
+  ![Image](https://github.com/user-attachments/assets/066e3483-18c0-4e78-a021-8fb7c3f5294d)
 
  
 - Sal by State
 
+  ![Image](https://github.com/user-attachments/assets/c5ada7ea-355d-41ff-b37c-c950d9ca25d9)
 
-- Sector by Size
+
+- Sec by Size
+  
+![Image](https://github.com/user-attachments/assets/0a07095c-d3b9-4fa3-a540-ac77c738762c)
+  
  
-- Sector by Salary
+- Sec by Sal
+
+  ![Image](https://github.com/user-attachments/assets/279ca14a-f90f-4ba4-8766-0ef406de8f52)
 
 ### Dashboard
 
+- First Page
+
+  ![Image](https://github.com/user-attachments/assets/a2a6d1f0-82e4-48ba-beae-514a09cddc93)
+
+- Second Page
+
+  ![Image](https://github.com/user-attachments/assets/15221f59-ff96-4816-ab68-848259116e86)
+
 
 ### Map
+![Image](https://github.com/user-attachments/assets/7da4cd47-77ed-41a3-af16-a225860c8636)
