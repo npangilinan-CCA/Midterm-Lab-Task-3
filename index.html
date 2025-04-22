@@ -1,1 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Midterm Lab Task 3 - Creating PIVOT TABLE and DASHBOARD</title>
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Cursor */
+        * {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7,2 L17,12 L7,22 L7,2" fill="silver" stroke="white" stroke-width="1"/><text x="14" y="14" fill="white" font-size="8">♱</text></svg>') 7 12, auto;
+        }
 
+        /* Hover Cursor */
+        a:hover, button:hover, .logo:hover, .frame-corner:hover, ul li:hover {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7,2 L17,12 L7,22 L7,2" fill="white" stroke="silver" stroke-width="1"/><text x="14" y="14" fill="silver" font-size="8">♱</text></svg>') 7 12, pointer;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+            background: #000;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: linear-gradient(90deg, #000, #111);
+            border: 1px solid rgba(192, 192, 192, 0.2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #333, #666);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #444, #777);
+        }
+
+        :root {
+            --chrome-black: #000000;
+            --chrome-silver: #C0C0C0;
+            --chrome-white: #FFFFFF;
+            --cross-pink: #FFB6C1;
+            --cross-blue: #4169E1;
+            --cross-yellow: #FFD700;
+            --cross-red: #FF0000;
+            --cross-green: #00FF00;
+        }
+
+        /* Floating Colored Crosses */
+        .colored-cross {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.5;
+            animation: float 20s linear infinite;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0.5;
+            }
+            50% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Loading Screen Styles */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-logo {
+            font-family: 'UnifrakturCook', cursive;
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(145deg, #e0e0e0, #aaa, #f5f5f5, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: loadingColorCycle 2s infinite;
+        }
+
+        .loading-cross {
+            font-size: 3rem;
+            margin: 2rem 0;
+            animation: loadingSpin 2s infinite linear;
+            color: var(--chrome-silver);
+        }
+
+        .loading-bar-container {
+            width: 200px;
+            height: 2px;
+            background: rgba(192, 192, 192, 0.1);
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(
+                to right,
+                var(--chrome-silver),
+                var(--chrome-white),
+                var(--chrome-silver)
+            );
+            animation: loadingProgress 2s ease-out forwards;
+        }
+
+        .loading-text {
+            font-family: 'Playfair Display', serif;
+            color: var(--chrome-silver);
+            font-size: 1rem;
+            letter-spacing: 3px;
+            margin-top: 1rem;
+            opacity: 0.8;
+        }
+                @keyframes loadingSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes loadingColorCycle {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        @keyframes loadingProgress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        /* Hide main content while loading */
+        .container {
+            opacity: 0;
+            transition: opacity 1s ease-in;
+        }
+
+        .container.loaded {
+            opacity: 1;
+        }
+
+        body {
+            margin: 0;
+            padding: 2rem;
+            font-family: 'Playfair Display', serif;
+            color: white;
+            background: black;
+            line-height: 1.6;
+            font-size: 18px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 40px;
+            border: 2px solid var(--chrome-silver);
+            box-shadow: 0 0 20px rgba(192, 192, 192, 0.3);
+            position: relative;
+            backdrop-filter: blur(5px);
+            z-index: 1;
+        }
+
+        /* Title Container Styles */
+        .title-container {
+            position: relative;
+            overflow: hidden;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main-title, .subtitle {
+            font-family: 'UnifrakturCook', cursive;
+            text-align: center;
+            background: linear-gradient(145deg, #e0e0e0, #aaa, #f5f5f5, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: all 0.5s ease;
+            position: relative;
+            padding: 0.5rem 2rem;
+            cursor: pointer;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .main-title {
+            font-size: 3rem;
+        }
+
+        .subtitle {
+            font-size: 2rem;
+            margin-top: 0.5rem;
+        }
+
+        .title-container:hover .main-title,
+        .title-container:hover .subtitle {
+            animation: colorCycle 2s infinite;
+            background: linear-gradient(to right, yellow, lightgreen, pink, lightcoral, lightblue);
+            background-size: 300% 300%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            transform: scale(1.02);
+        }
+
+        .title-container:hover .subtitle {
+            animation-delay: 0.1s;
+        }
+
+        .title-border-top,
+        .title-border-bottom {
+            position: absolute;
+            height: 2px;
+            width: 0;
+            background: linear-gradient(to right,
+                transparent,
+                yellow,
+                lightgreen,
+                pink,
+                lightcoral,
+                lightblue,
+                transparent
+            );
+            transition: width 0.3s ease;
+        }
+
+        .title-border-top {
+            top: 0;
+            right: 50%;
+        }
+
+        .title-border-bottom {
+            bottom: 0;
+            left: 50%;
+        }
+
+        .title-container:hover .title-border-top,
+        .title-container:hover .title-border-bottom {
+            width: 100%;
+        }
+
+        @keyframes colorCycle {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+                .description {
+            color: var(--chrome-silver);
+            font-size: 1.2rem;
+            margin: 2rem 0;
+            text-align: justify;
+            padding: 0 1rem;
+            line-height: 1.8;
+        }
+
+        .section-title {
+            font-family: 'UnifrakturCook', cursive;
+            color: var(--chrome-white);
+            font-size: 2.2rem;
+            margin: 2.5rem 0 1.5rem;
+            border-bottom: 2px solid var(--chrome-silver);
+            padding-bottom: 0.5rem;
+        }
+
+        /* Process List Styles */
+        .process-list {
+            list-style: none;
+            padding: 0;
+            font-size: 1.1rem;
+        }
+
+        .process-list > li {
+            background: rgba(255, 255, 255, 0.05);
+            margin: 1rem 0;
+            padding: 1.2rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .process-list > li:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(10px);
+        }
+
+        .sub-list {
+            list-style: none;
+            padding-left: 2rem;
+            margin-top: 0.8rem;
+            font-size: 1rem;
+        }
+
+        /* Image Container Styles */
+        .image-container {
+            margin: 2rem auto;
+            position: relative;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .image-container.dashboard-image {
+            max-width: 500px;
+        }
+
+        .image-title {
+            font-family: 'UnifrakturCook', cursive;
+            font-size: 1.8rem;
+            color: var(--chrome-silver);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .chrome-frame {
+            position: relative;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid var(--chrome-silver);
+            transition: transform 0.3s ease;
+            max-width: 100%;
+        }
+
+        .chrome-frame:hover {
+            transform: scale(1.02);
+        }
+
+        .chrome-frame img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Frame Corner Styles */
+        .frame-corner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--chrome-silver);
+        }
+
+        .top-left {
+            top: -2px;
+            left: -2px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .top-right {
+            top: -2px;
+            right: -2px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .bottom-left {
+            bottom: -2px;
+            left: -2px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .bottom-right {
+            bottom: -2px;
+            right: -2px;
+            border-left: none;
+            border-top: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-logo">Loading</div>
+            <div class="loading-cross">♱</div>
+            <div class="loading-bar-container">
+                <div class="loading-bar"></div>
+            </div>
+            <div class="loading-text">LOADING...</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="title-container">
+            <div class="main-title">Midterm Lab Task 3</div>
+            <div class="subtitle">Creating PIVOT TABLE and DASHBOARD</div>
+            <div class="title-border-top"></div>
+            <div class="title-border-bottom"></div>
+        </div>
+        
+        <p class="description">
+            This task demonstrates how to create an interactive Excel dashboard that tracks Data Science salary trends and job patterns. It looks at job distribution, salary changes by role and company size, and sector-based employment trends using pivot tables, charts, slicers, and an optional map.
+        </p>
+
+        <h2 class="section-title">Step by Step Process</h2>
+        <ol class="process-list">
+            <li>
+                Use the given data
+                <ul class="sub-list">
+                    <li>Open the Worksheet on Uncleaned DS Jobs and the Transform Tables:
+                        <ul class="sub-list">
+                            <li>Sal By Role</li>
+                            <li>Sal By State</li>
+                            <li>Sal By Size</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Design the dashboard to highlight the following:
+                <ul class="sub-list">
+                    <li>State with the most Data Science jobs</li>
+                    <li>Job role with the highest average salary</li>
+                    <li>Company size that pays the highest salary</li>
+                    <li>Sector with the lowest & highest number of Data Science jobs</li>
+                    <li>Sector with the minimum & maximum average salary</li>
+                </ul>
+            </li>
+            <li>
+                Create a pivot table
+                <ul class="sub-list">
+                    <li>Use pivot tables to summarize data for sector jobs and salary (d & e)</li>
+                </ul>
+            </li>
+            <li>
+                Generate charts for reports
+                <ul class="sub-list">
+                    <li>Use bar, column, or pie charts to visualize salary trends and job distribution</li>
+                </ul>
+            </li>
+            <li>
+                Insert slicers for filtering
+                <ul class="sub-list">
+                    <li>Add slicers for role type, company size, and state to make the dashboard interactive</li>
+                </ul>
+            </li>
+            <li>
+                Add a map (optional)
+                <ul class="sub-list">
+                    <li>If available in your Excel version, insert a map visualization to show job distribution by state</li>
+                </ul>
+            </li>
+            <li>
+                Apply design & formatting
+                <ul class="sub-list">
+                    <li>Customize the colors, fonts, and layout to make the dashboard visually appealing</li>
+                </ul>
+            </li>
+            <li>
+                Complete the dashboard
+                <ul class="sub-list">
+                    <li>Ensure all required visuals and reports are included</li>
+                    <li>The slicers should be functional and interactive</li>
+                </ul>
+            </li>
+        </ol>
+                <h2 class="section-title">Screenshots During Analysis</h2>
+        
+        <div class="image-container">
+            <h3 class="image-title">Sal by Role Type</h3>
+            <div class="chrome-frame">
+                <div class="frame-corner top-left"></div>
+                <div class="frame-corner top-right"></div>
+                <div class="frame-corner bottom-left"></div>
+                <div class="frame-corner bottom-right"></div>
+                <img src="https://github.com/user-attachments/assets/42b75e6e-60f0-49be-b59d-25c41fc8b135" alt="Salary by Role Type">
+            </div>
+        </div>
+
+        <div class="image-container">
+            <h3 class="image-title">Sal by Size</h3>
+            <div class="chrome-frame">
+                <div class="frame-corner top-left"></div>
+                <div class="frame-corner top-right"></div>
+                <div class="frame-corner bottom-left"></div>
+                <div class="frame-corner bottom-right"></div>
+                <img src="https://github.com/user-attachments/assets/066e3483-18c0-4e78-a021-8fb7c3f5294d" alt="Salary by Size">
+            </div>
+        </div>
+
+        <div class="image-container">
+            <h3 class="image-title">Sal by State</h3>
+            <div class="chrome-frame">
+                <div class="frame-corner top-left"></div>
+                <div class="frame-corner top-right"></div>
+                <div class="frame-corner bottom-left"></div>
+                <div class="frame-corner bottom-right"></div>
+                <img src="https://github.com/user-attachments/assets/c5ada7ea-355d-41ff-b37c-c950d9ca25d9" alt="Salary by State">
+            </div>
+        </div>
+
+        <div class="image-container">
+            <h3 class="image-title">Sec by Size</h3>
+            <div class="chrome-frame">
+                <div class="frame-corner top-left"></div>
+                <div class="frame-corner top-right"></div>
+                <div class="frame-corner bottom-left"></div>
+                <div class="frame-corner bottom-right"></div>
+                <img src="https://github.com/user-attachments/assets/0a07095c-d3b9-4fa3-a540-ac77c738762c" alt="Sector by Size">
+            </div>
+        </div>
+
+        <div class="image-container">
+            <h3 class="image-title">Sec by Sal</h3>
+            <div class="chrome-frame">
+                <div class="frame-corner top-left"></div>
+                <div class="frame-corner top-right"></div>
+                <div class="frame-corner bottom-left"></div>
+                <div class="frame-corner bottom-right"></div>
+                <img src="https://github.com/user-attachments/assets/279ca14a-f90f-4ba4-8766-0ef406de8f52" alt="Sector by Salary">
+            </div>
+        </div>
+
+        <h2 class="section-title">Dashboard</h2>
+
+        <div class="image-container dashboard-image">
+            <h3 class="image-title">First Page</h3>
+            <div class="chrome-frame">
+                <div class="frame-corner top-left"></div>
+                <div class="frame-corner top-right"></div>
+                <div class="frame-corner bottom-left"></div>
+                <div class="frame-corner bottom-right"></div>
+                <img src="https://github.com/user-attachments/assets/a2a6d1f0-82e4-48ba-beae-514a09cddc93" alt="Dashboard First Page">
+            </div>
+        </div>
+
+        <div class="image-container dashboard-image">
+            <h3 class="image-title">Second Page</h3>
+            <div class="chrome-frame">
+                <div class="frame-corner top-left"></div>
+                <div class="frame-corner top-right"></div>
+                <div class="frame-corner bottom-left"></div>
+                <div class="frame-corner bottom-right"></div>
+                <img src="https://github.com/user-attachments/assets/15221f59-ff96-4816-ab68-848259116e86" alt="Dashboard Second Page">
+            </div>
+        </div>
+
+        <h2 class="section-title">Map</h2>
+        <div class="image-container">
+            <div class="chrome-frame">
+                <div class="frame-corner top-left"></div>
+                <div class="frame-corner top-right"></div>
+                <div class="frame-corner bottom-left"></div>
+                <div class="frame-corner bottom-right"></div>
+                <img src="https://github.com/user-attachments/assets/7da4cd47-77ed-41a3-af16-a225860c8636" alt="Map">
+            </div>
+        </div>
+
+        <h2 class="section-title">Search Bar</h2>
+        <div class="image-container">
+            <div class="chrome-frame">
+                <div class="frame-corner top-left"></div>
+                <div class="frame-corner top-right"></div>
+                <div class="frame-corner bottom-left"></div>
+                <div class="frame-corner bottom-right"></div>
+                <img src="https://github.com/user-attachments/assets/3d84619d-7630-49e5-a87a-4be76cecaa4f" alt="Search Bar">
+            </div>
+        </div>
+    </div>
+        <script>
+        // Loading screen handler
+        document.addEventListener('DOMContentLoaded', () => {
+            const loadingScreen = document.getElementById('loadingScreen');
+            const container = document.querySelector('.container');
+            
+            setTimeout(() => {
+                loadingScreen.style.opacity = '0';
+                container.classList.add('loaded');
+                
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 500);
+            }, 2000);
+        });
+
+        // Create floating colored crosses
+        function createColoredCross() {
+            const colors = ['#FFB6C1', '#4169E1', '#FFD700', '#FF0000', '#00FF00'];
+            const cross = document.createElement('div');
+            cross.className = 'colored-cross';
+            cross.innerHTML = '♱';
+            cross.style.left = Math.random() * 100 + 'vw';
+            cross.style.color = colors[Math.floor(Math.random() * colors.length)];
+            cross.style.animationDuration = (15 + Math.random() * 10) + 's';
+            document.body.appendChild(cross);
+
+            setTimeout(() => {
+                cross.remove();
+            }, 20000);
+        }
+
+        // Create initial crosses
+        for (let i = 0; i < 20; i++) {
+            createColoredCross();
+        }
+
+        // Add new crosses periodically
+        setInterval(createColoredCross, 2000);
+    </script>
+</body>
+</html>
